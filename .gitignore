@@ -1,0 +1,46 @@
+# Unity generated
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+
+# Visual Studio / MonoDevelop generated
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.VCVC.db
+
+# OS generated
+.DS_Store
+.ehthumbs_tmb
+_Metadata
+.ipynb_checkpoints
+
+# Archive files
+*.zip
+*.rar
+
+# Build outputs
+Build/
+*.apk
+*.aab
+*.unitypackage
+
+# JetBrains Rider
+.idea/
+*.csproj.*.*.*.* 
