@@ -6,16 +6,46 @@ public class Door : MonoBehaviour
     public bool requiresKey = false;
     public string requiredKeyName = "SmallKey"; // "SmallKey" or "BasementKey"
     public bool isOpen = false;
+    public float openSpeed = 2f;
 
-    // Simple door open: just rotate it
+    [Header("Sound Settings")]
+    public bool makesNoise = true;
+    public float doorNoiseRadius = 20f;
+
     private Quaternion closedRotation;
     private Quaternion openRotation;
     private bool isAnimating = false;
+    private SoundEmitter soundEmitter;
 
     void Start()
     {
         closedRotation = transform.rotation;
         openRotation = transform.rotation * Quaternion.Euler(0, 90, 0);
+
+        if (makesNoise)
+        {
+            soundEmitter = gameObject.AddComponent<SoundEmitter>();
+            soundEmitter.soundRadius = doorNoiseRadius;
+        }
+    }
+
+    void Update()
+    {
+        // Smooth door opening animation
+        if (isAnimating)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                openRotation,
+                Time.deltaTime * openSpeed
+            );
+
+            if (Quaternion.Angle(transform.rotation, openRotation) < 1f)
+            {
+                transform.rotation = openRotation;
+                isAnimating = false;
+            }
+        }
     }
 
     public void TryOpen()
@@ -43,8 +73,17 @@ public class Door : MonoBehaviour
     void OpenDoor()
     {
         isOpen = true;
-        // Snap open for now — we can add animation later
-        transform.rotation = openRotation;
+        isAnimating = true;
+
+        // ADD THIS:
+        AudioManager.instance.PlayDoor();
+
+        if (makesNoise && soundEmitter != null)
+        {
+            soundEmitter.EmitSound(transform.position, doorNoiseRadius);
+            Debug.Log("Door creaked open! Granny might have heard...");
+        }
+
         Debug.Log("Door opened!");
     }
 }

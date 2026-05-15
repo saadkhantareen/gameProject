@@ -21,12 +21,15 @@ public class FlashlightController : MonoBehaviour
     {
         currentBattery = maxBattery;
         flashlight.enabled = true;
+        UIManager.instance.UpdateBattery(currentBattery, maxBattery);
     }
 
     void Update()
     {
         HandleToggle();
         HandleBatteryDrain();
+        // After battery changes, add:
+        UIManager.instance.UpdateBattery(currentBattery, maxBattery);
     }
 
     void HandleToggle()
@@ -35,6 +38,7 @@ public class FlashlightController : MonoBehaviour
         {
             isOn = !isOn;
             flashlight.enabled = isOn;
+            AudioManager.instance.PlayFlashlightClick();
         }
     }
 

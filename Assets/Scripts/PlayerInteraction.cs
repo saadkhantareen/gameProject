@@ -11,10 +11,8 @@ public class PlayerInteraction : MonoBehaviour
     {
         CheckForInteractable();
     }
-
     void CheckForInteractable()
     {
-        // Shoot a ray from the center of the screen forward
         Ray ray = playerCamera.ScreenPointToRay(
             new Vector3(Screen.width / 2, Screen.height / 2, 0));
 
@@ -22,30 +20,35 @@ public class PlayerInteraction : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, interactRange))
         {
-            // Check if the object has a PickupItem component
             PickupItem item = hit.collider.GetComponent<PickupItem>();
 
             if (item != null)
             {
-                // We will show UI hint here later (Phase 8)
-                Debug.Log("Press E to pick up " + item.itemName);
+                // REPLACE Debug.Log with this:
+                UIManager.instance.ShowInteractionPrompt("Press E to pick up " + item.itemName);
 
                 if (Input.GetKeyDown(interactKey))
                 {
                     item.OnPickup();
                 }
+                return; // ADD THIS
             }
 
-            // Check if it has a Door component
             Door door = hit.collider.GetComponent<Door>();
             if (door != null)
             {
-                Debug.Log("Press E to open door");
+                // REPLACE Debug.Log with this:
+                UIManager.instance.ShowInteractionPrompt("Press E to open door");
+                
                 if (Input.GetKeyDown(interactKey))
                 {
                     door.TryOpen();
                 }
+                return; // ADD THIS
             }
         }
+        
+        // ADD THIS: Hide prompt when not looking at anything
+        UIManager.instance.HideInteractionPrompt();
     }
 }
