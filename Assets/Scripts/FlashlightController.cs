@@ -5,14 +5,11 @@ public class FlashlightController : MonoBehaviour
 {
     [Header("Flashlight Settings")]
     public float maxBattery = 100f;
-    public float drainRate = 2f;      // Battery lost per second when ON
+    public float drainRate = 2f;
     public KeyCode toggleKey = KeyCode.F;
 
     [Header("References")]
-    public Light flashlight;           // Drag your Flashlight here
-
-    // We will connect UI later — leave this for now
-    // public Slider batterySlider;
+    public Light flashlight;
 
     private float currentBattery;
     private bool isOn = true;
@@ -21,15 +18,23 @@ public class FlashlightController : MonoBehaviour
     {
         currentBattery = maxBattery;
         flashlight.enabled = true;
-        UIManager.instance.UpdateBattery(currentBattery, maxBattery);
+        
+        if (UIManager.instance != null)
+        {
+            UIManager.instance.UpdateBattery(currentBattery, maxBattery);
+        }
     }
 
     void Update()
     {
         HandleToggle();
         HandleBatteryDrain();
-        // After battery changes, add:
-        UIManager.instance.UpdateBattery(currentBattery, maxBattery);
+        
+        // Update UI
+        if (UIManager.instance != null)
+        {
+            UIManager.instance.UpdateBattery(currentBattery, maxBattery);
+        }
     }
 
     void HandleToggle()
@@ -38,7 +43,11 @@ public class FlashlightController : MonoBehaviour
         {
             isOn = !isOn;
             flashlight.enabled = isOn;
-            AudioManager.instance.PlayFlashlightClick();
+            
+            if (AudioManager.instance != null)
+            {
+                AudioManager.instance.PlayFlashlightClick();
+            }
         }
     }
 
@@ -61,7 +70,6 @@ public class FlashlightController : MonoBehaviour
         }
     }
 
-    // Call this from other scripts when player picks up a battery
     public void AddBattery(float amount)
     {
         currentBattery = Mathf.Min(currentBattery + amount, maxBattery);

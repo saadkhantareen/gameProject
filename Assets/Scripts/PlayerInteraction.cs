@@ -11,6 +11,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         CheckForInteractable();
     }
+    
     void CheckForInteractable()
     {
         Ray ray = playerCamera.ScreenPointToRay(
@@ -24,31 +25,40 @@ public class PlayerInteraction : MonoBehaviour
 
             if (item != null)
             {
-                // REPLACE Debug.Log with this:
-                UIManager.instance.ShowInteractionPrompt("Press E to pick up " + item.itemName);
+                // Show UI prompt if UIManager exists
+                if (UIManager.instance != null)
+                {
+                    UIManager.instance.ShowInteractionPrompt("Press E to pick up " + item.itemName);
+                }
 
                 if (Input.GetKeyDown(interactKey))
                 {
                     item.OnPickup();
                 }
-                return; // ADD THIS
+                return;
             }
 
             Door door = hit.collider.GetComponent<Door>();
             if (door != null)
             {
-                // REPLACE Debug.Log with this:
-                UIManager.instance.ShowInteractionPrompt("Press E to open door");
+                // Show UI prompt if UIManager exists
+                if (UIManager.instance != null)
+                {
+                    UIManager.instance.ShowInteractionPrompt("Press E to open door");
+                }
                 
                 if (Input.GetKeyDown(interactKey))
                 {
                     door.TryOpen();
                 }
-                return; // ADD THIS
+                return;
             }
         }
         
-        // ADD THIS: Hide prompt when not looking at anything
-        UIManager.instance.HideInteractionPrompt();
+        // Hide prompt when not looking at anything
+        if (UIManager.instance != null)
+        {
+            UIManager.instance.HideInteractionPrompt();
+        }
     }
 }

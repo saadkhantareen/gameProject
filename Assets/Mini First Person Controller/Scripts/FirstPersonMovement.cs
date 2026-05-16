@@ -14,29 +14,37 @@ public class FirstPersonMovement : MonoBehaviour
     [Header("Jumping")]
     public float jumpForce = 5f;
     public KeyCode jumpKey = KeyCode.Space;
-    public LayerMask groundLayer; // Set this to 'Default' or 'Floor' in Inspector
-    public Transform groundCheck; // Create an empty child at player's feet
-    public float groundDistance = 0.2f;
+    public LayerMask groundLayer = 1;
+    public Transform groundCheck;
+    public float groundDistance = 0.4f;
+
+    [Header("Rotation")]
+    public float mouseSensitivity = 2f;
+    public float bodyRotationSpeed = 10f;
 
     private bool isGrounded;
-    Rigidbody rigidbody;
-    
+    private Rigidbody rb;
+    private float yaw = 0f;
+
     public List<System.Func<float>> speedOverrides = new List<System.Func<float>>();
 
     void Awake()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
+        // Start yaw at current rotation
+        yaw = transform.eulerAngles.y;
     }
 
     void Update()
     {
-        // Jump input should be checked in Update for better responsiveness
         CheckGroundStatus();
 
+        // Mouse X rotates player body
+        yaw += Input.GetAxisRaw("Mouse X") * mouseSensitivity;
+        transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+
         if (Input.GetKeyDown(jumpKey) && isGrounded)
-        {
             Jump();
-        }
     }
 
     void FixedUpdate()
@@ -45,26 +53,44 @@ public class FirstPersonMovement : MonoBehaviour
 
         float targetMovingSpeed = IsRunning ? runSpeed : speed;
         if (speedOverrides.Count > 0)
-        {
             targetMovingSpeed = speedOverrides[speedOverrides.Count - 1]();
+
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+
+        // Move relative to player facing direction
+        Vector3 forward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+        Vector3 right   = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
+
+        Vector3 moveDirection = forward * v + right * h;
+        moveDirection.y = 0f;
+
+        // Rotate body toward movement direction when strafing
+        // Only rotate body for forward/strafe - NOT for backward
+        if (moveDirection.sqrMagnitude > 0.01f && v >= 0)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.Lerp(
+                transform.rotation,
+                targetRot,
+                Time.fixedDeltaTime * bodyRotationSpeed
+            );
+            yaw = transform.eulerAngles.y;
         }
 
-        Vector2 targetVelocity = new Vector2(Input.GetAxis("Horizontal") * targetMovingSpeed, Input.GetAxis("Vertical") * targetMovingSpeed);
-
-        // Apply movement while preserving current Y velocity (gravity/jumping)
-        rigidbody.linearVelocity = transform.rotation * new Vector3(targetVelocity.x, rigidbody.linearVelocity.y, targetVelocity.y);
+        Vector3 targetVelocity = moveDirection * targetMovingSpeed;
+        rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);
     }
 
     void CheckGroundStatus()
     {
-        // Creates a tiny invisible sphere at the player's feet to see if it hits the ground
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundLayer);
+        if (groundCheck != null)
+            isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundLayer);
     }
 
     void Jump()
     {
-        // Reset Y velocity before jumping so double-taps don't launch you to space
-        rigidbody.linearVelocity = new Vector3(rigidbody.linearVelocity.x, 0f, rigidbody.linearVelocity.z);
-        rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 }

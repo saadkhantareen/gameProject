@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
     
     public enum Difficulty { Easy, Normal, Hard, Extreme }
 
-    // Difficulty modifiers (applied to AI)
     [System.Serializable]
     public class DifficultySettings
     {
@@ -79,7 +78,11 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         ApplyDifficultySettings();
-        UIManager.instance.UpdateCandles(candlesCollected, candlesNeeded);
+        
+        if (UIManager.instance != null)
+        {
+            UIManager.instance.UpdateCandles(candlesCollected, candlesNeeded);
+        }
     }
 
     void Update()
@@ -104,9 +107,12 @@ public class GameManager : MonoBehaviour
             case PickupItem.ItemType.Candle:
                 candlesCollected++;
                 Debug.Log("Candles: " + candlesCollected + "/" + candlesNeeded);
-                UIManager.instance.UpdateCandles(candlesCollected, candlesNeeded);
                 
-                // Check win condition
+                if (UIManager.instance != null)
+                {
+                    UIManager.instance.UpdateCandles(candlesCollected, candlesNeeded);
+                }
+                
                 if (candlesCollected >= candlesNeeded)
                 {
                     Debug.Log("All candles collected! Find the exit!");
@@ -136,9 +142,12 @@ public class GameManager : MonoBehaviour
         
         Time.timeScale = 0f;
         
-        // REPLACE Invoke with this:
-        ScreenManager.instance.ShowGameOver();
+        if (ScreenManager.instance != null)
+        {
+            ScreenManager.instance.ShowGameOver();
+        }
     }
+    
     public void TriggerWin()
     {
         if (gameWon) return;
@@ -147,15 +156,11 @@ public class GameManager : MonoBehaviour
         
         Time.timeScale = 0f;
         
-        // ADD THIS:
-        ScreenManager.instance.ShowWinScreen();
+        if (ScreenManager.instance != null)
+        {
+            ScreenManager.instance.ShowWinScreen();
+        }
     }
-
-    // void RestartGame()
-    // {
-    //     Time.timeScale = 1f;
-    //     SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    // }
 
     void TogglePause()
     {
