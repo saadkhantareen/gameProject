@@ -83,8 +83,8 @@ public class ScreenManager : MonoBehaviour
     }
     void Update() // ADD THIS WHOLE METHOD
     {
-        // Toggle pause with ESC
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // Toggle pause with P
+        if (Input.GetKeyDown(KeyCode.P))
         {
             if (isPaused)
                 ResumeGame();

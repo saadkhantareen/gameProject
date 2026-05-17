@@ -6,6 +6,7 @@ public class FirstPersonMovement : MonoBehaviour
     public float speed = 5;
 
     [Header("Running")]
+    public MobileMoveButtons mobileButtons;
     public bool canRun = true;
     public bool IsRunning { get; private set; }
     public float runSpeed = 9;
@@ -21,6 +22,8 @@ public class FirstPersonMovement : MonoBehaviour
     [Header("Rotation")]
     public float mouseSensitivity = 2f;
     public float bodyRotationSpeed = 10f;
+    public FirstPersonLook lookInput;
+    public float lookYawOverrideThreshold = 0.001f;
 
     private bool isGrounded;
     private Rigidbody rb;
@@ -39,8 +42,14 @@ public class FirstPersonMovement : MonoBehaviour
     {
         CheckGroundStatus();
 
-        // Mouse X rotates player body
-        yaw += Input.GetAxisRaw("Mouse X") * mouseSensitivity;
+        // Look input rotates player body
+        float yawInput = Input.GetAxisRaw("Mouse X") * mouseSensitivity;
+        if (lookInput != null)
+        {
+            yawInput = lookInput.LookDelta.x;
+        }
+
+        yaw += yawInput;
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
         if (Input.GetKeyDown(jumpKey) && isGrounded)
@@ -55,8 +64,8 @@ public class FirstPersonMovement : MonoBehaviour
         if (speedOverrides.Count > 0)
             targetMovingSpeed = speedOverrides[speedOverrides.Count - 1]();
 
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+        float h = mobileButtons ? mobileButtons.MoveInput.x : Input.GetAxis("Horizontal");
+        float v = mobileButtons ? mobileButtons.MoveInput.y : Input.GetAxis("Vertical");
 
         // Move relative to player facing direction
         Vector3 forward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
@@ -64,19 +73,6 @@ public class FirstPersonMovement : MonoBehaviour
 
         Vector3 moveDirection = forward * v + right * h;
         moveDirection.y = 0f;
-
-        // Rotate body toward movement direction when strafing
-        // Only rotate body for forward/strafe - NOT for backward
-        if (moveDirection.sqrMagnitude > 0.01f && v >= 0)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Lerp(
-                transform.rotation,
-                targetRot,
-                Time.fixedDeltaTime * bodyRotationSpeed
-            );
-            yaw = transform.eulerAngles.y;
-        }
 
         Vector3 targetVelocity = moveDirection * targetMovingSpeed;
         rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);

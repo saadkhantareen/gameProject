@@ -91,7 +91,9 @@ public class GrannyStyleAI : MonoBehaviour
             return;
         }
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        // Fix: Ignore the height (Y-axis) so giant players don't confuse the distance check
+        Vector3 flatPlayerPosition = new Vector3(player.position.x, transform.position.y, player.position.z);
+        float distanceToPlayer = Vector3.Distance(transform.position, flatPlayerPosition);
 
         switch (currentState)
         {
@@ -148,7 +150,10 @@ public class GrannyStyleAI : MonoBehaviour
     void ChaseBehavior(float distanceToPlayer)
     {
         agent.speed = chaseSpeed;
-        agent.SetDestination(player.position);
+        
+        // Fix: Force the agent to target the ground level of the player, not their floating center 
+        Vector3 groundTarget = new Vector3(player.position.x, transform.position.y, player.position.z);
+        agent.SetDestination(groundTarget);
 
         // Attack if close enough
         if (distanceToPlayer <= attackRange)

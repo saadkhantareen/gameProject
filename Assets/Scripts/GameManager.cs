@@ -87,8 +87,8 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // Pause game with ESC
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // Pause game with P
+        if (Input.GetKeyDown(KeyCode.P))
         {
             TogglePause();
         }
