@@ -3,9 +3,13 @@ using UnityEngine;
 public class ExitDoor : MonoBehaviour
 {
     [Header("Exit Settings")]
-    public bool requiresAllCandles = true;
-    public bool requiresKey = false;
+    public bool requiresAllCandles = false;
+    public bool requiresKey = true;
     public string requiredKeyName = "BasementKey";
+
+    [Header("Runtime References")]
+    // The solid (non-trigger) collider that blocks the player when the door is closed.
+    public Collider blockingCollider;
 
     private bool playerInZone = false;
 
@@ -15,6 +19,12 @@ public class ExitDoor : MonoBehaviour
         {
             playerInZone = true;
             CheckExitConditions();
+
+            // If the player already meets the exit conditions, immediately win
+            if (CanEscape())
+            {
+                GameManager.instance.TriggerWin();
+            }
         }
     }
 
@@ -40,28 +50,32 @@ public class ExitDoor : MonoBehaviour
         if (CanEscape())
         {
             UIManager.instance.ShowInteractionPrompt("Press E to ESCAPE!");
+            return;
         }
-        else
+
+        // Build a friendly locked message
+        if (requiresAllCandles && GameManager.instance.candlesCollected < GameManager.instance.candlesNeeded)
         {
-            string message = "EXIT LOCKED - ";
-            
-            if (requiresAllCandles && GameManager.instance.candlesCollected < GameManager.instance.candlesNeeded)
-            {
-                int remaining = GameManager.instance.candlesNeeded - GameManager.instance.candlesCollected;
-                message += "Find " + remaining + " more candle(s)";
-            }
-            else if (requiresKey)
-            {
-                bool hasKey = requiredKeyName == "BasementKey" 
-                    ? GameManager.instance.hasBasementKey 
-                    : GameManager.instance.hasSmallKey;
-                
-                if (!hasKey)
-                    message += "Need " + requiredKeyName;
-            }
-            
-            UIManager.instance.ShowInteractionPrompt(message);
+            int remaining = GameManager.instance.candlesNeeded - GameManager.instance.candlesCollected;
+            UIManager.instance.ShowInteractionPrompt("Door won't open — find " + remaining + " more candle(s)");
+            return;
         }
+
+        if (requiresKey)
+        {
+            bool hasKey = requiredKeyName == "BasementKey" 
+                ? GameManager.instance.hasBasementKey 
+                : GameManager.instance.hasSmallKey;
+
+            if (!hasKey)
+            {
+                UIManager.instance.ShowInteractionPrompt("Door won't open — find the key to escape.");
+                return;
+            }
+        }
+
+        // Generic fallback
+        UIManager.instance.ShowInteractionPrompt("Door is locked.");
     }
 
     void TryEscape()
@@ -69,6 +83,8 @@ public class ExitDoor : MonoBehaviour
         if (CanEscape())
         {
             Debug.Log("PLAYER ESCAPED!");
+            if (blockingCollider != null)
+                blockingCollider.enabled = false;
             GameManager.instance.TriggerWin();
         }
         else

@@ -38,6 +38,17 @@ public class GrannyStyleAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
 
+        // IMPORTANT: Prevent Rigidbody physics from interfering with the NavMesh agent or tumbling over
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.freezeRotation = true;
+            rb.isKinematic = true;
+        }
+
+        // Ensure NavMeshAgent handles the rotation properly
+        agent.updateRotation = true;
+
         // Find player by tag
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)

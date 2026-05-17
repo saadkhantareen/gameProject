@@ -19,8 +19,16 @@ public class PlayerInteract : MonoBehaviour
 
                 if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E))
                 {
-                    if (keyManager != null) keyManager.PickUpKey();
-                    Destroy(currentTarget);
+                    PickupItem pickup = currentTarget.GetComponent<PickupItem>();
+                    if (pickup != null)
+                    {
+                        pickup.OnPickup();
+                    }
+                    else
+                    {
+                        if (keyManager != null) keyManager.PickUpKey();
+                        Destroy(currentTarget);
+                    }
                     currentTarget = null;
                     if (keyManager != null) keyManager.HideInteractionPrompt();
                 }

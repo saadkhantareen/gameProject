@@ -26,11 +26,29 @@ public class AutoDoor : MonoBehaviour
 
     void Update()
     {
-        if (player == null) return;
+        bool shouldOpen = false;
 
-        float distance = Vector3.Distance(transform.position, player.position);
+        // Check distance to player
+        if (player != null && Vector3.Distance(transform.position, player.position) <= triggerDistance)
+        {
+            shouldOpen = true;
+        }
 
-        if (distance <= triggerDistance)
+        // Check distance to any enemy
+        if (!shouldOpen)
+        {
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            foreach (var enemy in enemies)
+            {
+                if (enemy != null && Vector3.Distance(transform.position, enemy.transform.position) <= triggerDistance)
+                {
+                    shouldOpen = true;
+                    break;
+                }
+            }
+        }
+
+        if (shouldOpen)
         {
             doorTransform.localRotation = Quaternion.Slerp(
                 doorTransform.localRotation,

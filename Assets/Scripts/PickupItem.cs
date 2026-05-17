@@ -57,6 +57,14 @@ public class PickupItem : MonoBehaviour
         // Find the GameManager and tell it what was picked up
         AudioManager.instance.PlayPickup();
         GameManager.instance.CollectItem(itemType, itemName);
+        
+        // If this is a key, notify the KeyManager UI (if present)
+        if (itemType == ItemType.Key)
+        {
+            KeyManager km = Object.FindObjectOfType<KeyManager>();
+            if (km != null)
+                km.PickUpKey();
+        }
 
         // If it is a battery, refill the flashlight
         if (itemType == ItemType.Battery)

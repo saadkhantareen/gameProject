@@ -31,7 +31,7 @@ public class PlayerInteraction : MonoBehaviour
                     UIManager.instance.ShowInteractionPrompt("Press E to pick up " + item.itemName);
                 }
 
-                if (Input.GetKeyDown(interactKey))
+                if (Input.GetKeyDown(interactKey) || Input.GetMouseButtonDown(0))
                 {
                     item.OnPickup();
                 }
@@ -47,7 +47,7 @@ public class PlayerInteraction : MonoBehaviour
                     UIManager.instance.ShowInteractionPrompt("Press E to open door");
                 }
                 
-                if (Input.GetKeyDown(interactKey))
+                if (Input.GetKeyDown(interactKey) || Input.GetMouseButtonDown(0))
                 {
                     door.TryOpen();
                 }
