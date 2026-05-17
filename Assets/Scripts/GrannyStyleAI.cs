@@ -40,9 +40,9 @@ public class GrannyStyleAI : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-
+        agent.autoBraking = false;
         // ── ADD THIS ──
-        animator = GetComponent<Animator>();
+        animator = GetComponentInChildren<Animator>();
         Debug.Log("Animator found: " + (animator != null)); // ← add this
 
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -106,7 +106,7 @@ public class GrannyStyleAI : MonoBehaviour
         if (animator != null)
         {
             float speed = agent.velocity.magnitude;
-            animator.SetFloat("Speed", speed);
+            animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
             Debug.Log("Speed: " + speed); 
         }
 
@@ -133,7 +133,7 @@ public class GrannyStyleAI : MonoBehaviour
             return;
         }
 
-        if (!agent.pathPending && agent.remainingDistance < 2f)
+        if (!agent.pathPending && agent.remainingDistance < 0.5f)
             GoToNextWaypoint();
     }
 
@@ -156,12 +156,22 @@ public class GrannyStyleAI : MonoBehaviour
         agent.SetDestination(groundTarget);
 
         if (distanceToPlayer <= attackRange)
+        {
             AttackPlayer();
+        }
+        else
+        {
+            // Reset attack when not in range
+            if (animator != null)
+                animator.SetBool("IsAttacking", false);
+        }
 
         if (distanceToPlayer > losePlayerRange)
         {
             currentState = AIState.Patrol;
             agent.speed = patrolSpeed;
+            if (animator != null)
+                animator.SetBool("IsAttacking", false);
             GoToNextWaypoint();
         }
     }

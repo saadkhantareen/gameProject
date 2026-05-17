@@ -5,29 +5,40 @@ public class LurkerAnimationController : MonoBehaviour
 {
     private Animator animator;
     private NavMeshAgent agent;
+    private Transform player;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
+        player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     void Update()
     {
-        // Speed controls Idle/Walk/Run
+        // Always chase player
+        if (player != null)
+        {
+            agent.SetDestination(player.position);
+        }
+
+        // Speed controls walk animation
         float speed = agent.velocity.magnitude;
-        animator.SetFloat("Speed", speed);
+        animator.SetBool("isWalking", speed > 0.1f);
     }
 
-    // Call when lurker attacks player
     public void TriggerAttack()
     {
-        animator.SetBool("IsAttacking", true);
+        animator.SetBool("isAttacking", true);
     }
 
-    // Call when lurker stops attacking
     public void StopAttack()
     {
-        animator.SetBool("IsAttacking", false);
+        animator.SetBool("isAttacking", false);
+    }
+
+    public void Die()
+    {
+        animator.SetBool("isDead", true);
     }
 }
