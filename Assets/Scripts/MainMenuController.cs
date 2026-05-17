@@ -16,7 +16,7 @@ public class MainMenuController : MonoBehaviour
     public void StartGame()
     {
         Debug.Log("Starting game...");
-        SceneManager.LoadScene("SampleScene"); // Change if your game scene has different name
+        SceneManager.LoadScene("saad"); // Change if your game scene has different name
     }
 
     public void QuitGame()
