@@ -65,14 +65,13 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        if (instance == null)
+        // Always replace old GameManager when a new scene loads.
+        // This ensures Level 2 starts fresh (keys/candles reset to 0).
+        if (instance != null)
         {
-            instance = this;
+            Destroy(instance.gameObject);
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+        instance = this;
     }
 
     void Start()

@@ -6,6 +6,7 @@ public class ExitDoor : MonoBehaviour
     public bool requiresAllCandles = false;
     public bool requiresKey = true;
     public string requiredKeyName = "BasementKey";
+    public string nextSceneName = ""; // Set to "Level2" in Level 1. Leave blank in Level 2 to show win screen.
 
     [Header("Runtime References")]
     // The solid (non-trigger) collider that blocks the player when the door is closed.
@@ -31,11 +32,11 @@ public class ExitDoor : MonoBehaviour
             playerInZone = true;
             CheckExitConditions();
 
-            // If the player already meets the exit conditions, immediately win
+            // If the player already meets the exit conditions, immediately escape
             if (CanEscape())
             {
-                Debug.Log("🎉 Player can escape! Triggering WIN immediately!");
-                GameManager.instance.TriggerWin();
+                Debug.Log("🎉 Player can escape! Triggering escape immediately!");
+                TryEscape();
             }
             else
             {
@@ -107,7 +108,18 @@ public class ExitDoor : MonoBehaviour
             Debug.Log("🎉🎉🎉 PLAYER ESCAPED! 🎉🎉🎉");
             if (blockingCollider != null)
                 blockingCollider.enabled = false;
-            GameManager.instance.TriggerWin();
+
+            // If a next scene is configured, load it. Otherwise show the win screen.
+            if (!string.IsNullOrEmpty(nextSceneName))
+            {
+                Debug.Log("Loading next scene: " + nextSceneName);
+                Time.timeScale = 1f; // Unfreeze time before loading
+                UnityEngine.SceneManagement.SceneManager.LoadScene(nextSceneName);
+            }
+            else
+            {
+                GameManager.instance.TriggerWin();
+            }
         }
         else
         {
