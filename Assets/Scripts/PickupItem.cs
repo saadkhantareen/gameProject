@@ -54,6 +54,8 @@ public class PickupItem : MonoBehaviour
     // This runs when the player picks it up
     public void OnPickup()
     {
+        Debug.Log("🔑 OnPickup called for: " + itemName + " (Type: " + itemType + ")");
+        
         // Find the GameManager and tell it what was picked up
         AudioManager.instance.PlayPickup();
         GameManager.instance.CollectItem(itemType, itemName);

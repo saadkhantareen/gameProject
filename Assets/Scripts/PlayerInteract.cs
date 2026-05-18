@@ -3,40 +3,63 @@ using UnityEngine;
 public class PlayerInteract : MonoBehaviour
 {
     [Header("Settings")]
-    public float interactRange = 3f;
+    public float interactRange = 5f;
     public KeyManager keyManager;
+    public Transform raycastOrigin; // Optional: assign camera if needed
+    
     private GameObject currentTarget;
+    private Camera playerCamera;
+
+    void Start()
+    {
+        // Try to find the camera
+        playerCamera = GetComponentInChildren<Camera>();
+        if (playerCamera == null)
+            playerCamera = Camera.main;
+        Debug.Log("PlayerInteract Started. Camera found: " + (playerCamera != null));   
+    }
 
     void Update()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, interactRange))
+        // Detect all nearby pickups in a sphere radius
+        Collider[] hits = Physics.OverlapSphere(transform.position, interactRange);
+        
+        PickupItem closestPickup = null;
+        float closestDistance = float.MaxValue;
+        
+        foreach (Collider col in hits)
         {
-            if (hit.collider.CompareTag("Key"))
+            PickupItem pickup = col.GetComponent<PickupItem>();
+            if (pickup != null)
             {
-                currentTarget = hit.collider.gameObject;
-                if (keyManager != null) keyManager.ShowInteractionPrompt();
-
-                if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E))
+                float dist = Vector3.Distance(transform.position, col.transform.position);
+                if (dist < closestDistance)
                 {
-                    PickupItem pickup = currentTarget.GetComponent<PickupItem>();
-                    if (pickup != null)
-                    {
-                        pickup.OnPickup();
-                    }
-                    else
-                    {
-                        if (keyManager != null) keyManager.PickUpKey();
-                        Destroy(currentTarget);
-                    }
-                    currentTarget = null;
-                    if (keyManager != null) keyManager.HideInteractionPrompt();
+                    closestDistance = dist;
+                    closestPickup = pickup;
                 }
             }
-            else ClearTarget();
         }
-        else ClearTarget();
-    }
+        
+        if (closestPickup != null)
+        {
+            currentTarget = closestPickup.gameObject;
+            
+            if (keyManager != null)
+                keyManager.ShowInteractionPrompt();
+            
+            if (Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0))
+            {
+                closestPickup.OnPickup();
+                currentTarget = null;
+                if (keyManager != null) keyManager.HideInteractionPrompt();
+            }
+        }
+        else
+        {
+            ClearTarget();
+        }
+    }     
 
     private void ClearTarget()
     {

@@ -9,7 +9,7 @@ public class KeyManager : MonoBehaviour
     public TextMeshProUGUI notificationText;
 
     private int keysCollected = 0;
-    private int totalKeys = 1;
+    public int totalKeys = 1; // Set to 2 in Level 2 via the Inspector
 
     void Start()
     {

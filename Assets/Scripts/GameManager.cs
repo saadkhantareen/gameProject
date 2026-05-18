@@ -65,14 +65,13 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        if (instance == null)
+        // Always replace old GameManager when a new scene loads.
+        // This ensures Level 2 starts fresh (keys/candles reset to 0).
+        if (instance != null)
         {
-            instance = this;
+            Destroy(instance.gameObject);
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+        instance = this;
     }
 
     void Start()
@@ -121,9 +120,15 @@ public class GameManager : MonoBehaviour
 
             case PickupItem.ItemType.Key:
                 if (itemName == "BasementKey")
+                {
                     hasBasementKey = true;
+                    Debug.Log("✅ BasementKey set to TRUE");
+                }
                 else if (itemName == "SmallKey")
+                {
                     hasSmallKey = true;
+                    Debug.Log("✅ SmallKey set to TRUE");
+                }
                 Debug.Log(itemName + " obtained!");
                 break;
 
@@ -138,6 +143,11 @@ public class GameManager : MonoBehaviour
     {
         if (gameOver) return;
         gameOver = true;
+        
+        Debug.Log("=== GAME OVER TRIGGERED ===");
+        Debug.LogError("Game Over called from:");
+        Debug.LogError(System.Environment.StackTrace);
+        
         Debug.Log("=== GAME OVER ===");
         
         Time.timeScale = 0f;
@@ -152,7 +162,9 @@ public class GameManager : MonoBehaviour
     {
         if (gameWon) return;
         gameWon = true;
+        
         Debug.Log("=== YOU ESCAPED! ===");
+        Debug.Log("✅✅✅ WIN TRIGGERED ✅✅✅");
         
         Time.timeScale = 0f;
         
